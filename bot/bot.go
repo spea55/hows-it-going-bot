@@ -33,7 +33,7 @@ type discordEmbed struct {
 	Fields []discordField `json:"fields"`
 }
  
-type discordWebhook struct {
+type DiscordWebhook struct {
 	UserName  string         `json:"username"`
 	AvatarURL string         `json:"avatar_url"`
 	Content   string         `json:"content"`
@@ -49,9 +49,9 @@ type Content struct {
 	Continuous string 	`json:"continuous"`
 }
 
-func Webhook(content Content) {
-	var whurl = "https://discordapp.com/api/webhooks/917763941659181136/xZMGCfNCkf9YI13oUGcze7dZYDruWPcxzdCJAH8NCbqFTd9Q4y-padiMYKEsUx8XuWd_"
-	dw := &discordWebhook{UserName: "Github Contribution", Content: content.Text}
+func (dw *DiscordWebhook) CreateMessage(content Content) {
+	dw.UserName = "Github Contribution"
+	dw.Content = content.Text
 	dw.Embeds = []discordEmbed{
 		{
 			Color: 0x550000,
@@ -68,10 +68,9 @@ func Webhook(content Content) {
 			},
 		},
 	}
-	sendWebhook(whurl, dw)
 }
 
-func sendWebhook(whurl string, dw *discordWebhook) {
+func (dw *DiscordWebhook) SendWebhook(whurl string) {
 	j, err := json.Marshal(dw)
 	if err != nil {
 		fmt.Println("json err:", err)

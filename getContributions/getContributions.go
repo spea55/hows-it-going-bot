@@ -1,9 +1,14 @@
 package getContributions
 
 import (
+	"context"
+	"log"
+	"os"
 	"time"
-	"github.com/google/go-github/v41/github"
-	"github.com/google/go-github/github"
+
+	"github.com/joho/godotenv"
+	"github.com/shurcooL/githubv4"
+	"golang.org/x/oauth2"
 )
 
 type Contributions struct {
@@ -11,6 +16,42 @@ type Contributions struct {
 	Count int
 }
 
+func getTime() (time.Time, time.Time) {
+	t := time.Now()
+	y := time.Now().AddDate(0, 0, -1)
+	return t, y
+}
+
 func GetContributions() {
-	client := github.NewClient()
+	today, yesterday := getTime()
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalln("Error loading .env file")
+	}
+
+	src := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
+	)
+	httpClient := oauth2.NewClient(context.Background(), src)
+
+	client := githubv4.NewClient(httpClient)
+
+	var q struct {
+		User struct {
+			ContrbutionsCollection struct {
+				TotalCommitContributions githubv4.Int
+			} `graphql:"contributionsCollection(from: $Yesterday,to: $Today)"`
+		} `graphql:"user(login: \"spea55\")"`
+	}
+
+	variable := map[string]interface{}{
+		"Today":     githubv4.DateTime{today},
+		"Yesterday": githubv4.DateTime{yesterday},
+	}
+
+	err = client.Query(context.Background(), &q, variable)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }

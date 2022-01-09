@@ -6,17 +6,21 @@ import (
 )
 
 func main() {
-	var content bot.Content
-	var contribution int
+	whurl := ""
+	dw := &bot.DiscordWebhook{}
+	content := bot.Content{}
 
-	if isContribution(contribution) {
+	getContributions.GetContributions()
+
+	if isContribution() {
 		content.Text = "@channel 進捗どうですか？"
 	}
 
-	bot.Webhook(content)
+	dw.CreateMessage(content)
+	dw.SendWebhook(whurl)
 }
 
-func isContribution(num int) bool {
+func isContribution(num githubv4.int) bool {
 	if num == 0 {
 		return true
 	}
