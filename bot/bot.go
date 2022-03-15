@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	// "github.com/shurcooL/githubv4"
 )
 
 type discordImg struct {
@@ -32,7 +34,7 @@ type discordEmbed struct {
 	Author discordAuthor  `json:"author"`
 	Fields []discordField `json:"fields"`
 }
- 
+
 type DiscordWebhook struct {
 	UserName  string         `json:"username"`
 	AvatarURL string         `json:"avatar_url"`
@@ -42,11 +44,11 @@ type DiscordWebhook struct {
 }
 
 type Content struct {
-	Text string 		`json:"text"`
-	TodayContributions string `json:"todayContributions"`
+	Text                   string `json:"text"`
+	TodayContributions     string `json:"todayContributions"`
 	YesterdayContributions string `json:"yesterdayContributions"`
-	Conpare string      `json:"conpare"`
-	Continuous string 	`json:"continuous"`
+	Conpare                string `json:"conpare"`
+	Continuous             string `json:"continuous"`
 }
 
 func (dw *DiscordWebhook) CreateMessage(content Content) {
@@ -56,34 +58,33 @@ func (dw *DiscordWebhook) CreateMessage(content Content) {
 		{
 			Color: 0x550000,
 			Fields: []discordField{
-				{Name: "今日のContributions", Value: content.TodayContributions + "contributions", Inline: true},
-				{Name: "昨日のContributions", Value: content.YesterdayContributions + "contributions", Inline: true},
+				{Name: "今日のContributions", Value: content.TodayContributions + " contributions", Inline: true},
 			},
 		},
 		{
 			Color: 1,
 			Fields: []discordField{
 				{Name: "前日比", Value: content.Conpare + "contributions", Inline: true},
-				{Name: "継続日数", Value: content.Continuous + "日", Inline: true},
+				// {Name: "継続日数", Value: content.Continuous + "日", Inline: true},
 			},
 		},
 	}
 }
 
-func (dw *DiscordWebhook) SendWebhook(whurl string) {
+func (dw *DiscordWebhook) SendMessage(whurl string) {
 	j, err := json.Marshal(dw)
 	if err != nil {
 		fmt.Println("json err:", err)
 		return
 	}
- 
+
 	req, err := http.NewRequest("POST", whurl, bytes.NewBuffer(j))
 	if err != nil {
 		fmt.Println("new request err:", err)
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
- 
+
 	client := http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {

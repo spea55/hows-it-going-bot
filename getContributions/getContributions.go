@@ -19,13 +19,14 @@ type Contributions struct {
 func getTime() (time.Time, time.Time) {
 	t := time.Now()
 	y := time.Now().AddDate(0, 0, -1)
+	
 	return t, y
 }
 
-func GetContributions() {
+func GetContributions() (githubv4.Int){
 	today, yesterday := getTime()
 
-	err := godotenv.Load()
+	err := godotenv.Load("getContributions/.env")
 	if err != nil {
 		log.Fatalln("Error loading .env file")
 	}
@@ -37,7 +38,7 @@ func GetContributions() {
 
 	client := githubv4.NewClient(httpClient)
 
-	var q struct {
+	var t struct {
 		User struct {
 			ContrbutionsCollection struct {
 				TotalCommitContributions githubv4.Int
@@ -50,8 +51,11 @@ func GetContributions() {
 		"Yesterday": githubv4.DateTime{yesterday},
 	}
 
-	err = client.Query(context.Background(), &q, variable)
+	err = client.Query(context.Background(), &t, variable)
 	if err != nil {
 		log.Fatalln(err)
 	}
+	tc := t.User.ContrbutionsCollection.TotalCommitContributions
+
+	return tc
 }

@@ -1,29 +1,31 @@
 package main
 
 import (
+	"strconv"
+
 	"local.packages/bot"
 	"local.packages/getContributions"
 )
 
 func main() {
-	whurl := ""
+	whurl := "" //webhook URL
 	dw := &bot.DiscordWebhook{}
 	content := bot.Content{}
 
-	getContributions.GetContributions()
-
-	if isContribution() {
-		content.Text = "@channel 進捗どうですか？"
-	}
+	tc := getContributions.GetContributions()
+	content.TodayContributions = strconv.Itoa(int(tc))
+	// if isContribution() {
+	// 	content.Text = "@channel 進捗どうですか？"
+	// }
 
 	dw.CreateMessage(content)
-	dw.SendWebhook(whurl)
+	dw.SendMessage(whurl)
 }
 
-func isContribution(num githubv4.int) bool {
-	if num == 0 {
-		return true
-	}
+// func isContribution(num githubv4.int) bool {
+// 	if num == 0 {
+// 		return true
+// 	}
 
-	return false
-}
+// 	return false
+// }
